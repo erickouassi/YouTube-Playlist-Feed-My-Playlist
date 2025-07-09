@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>YouTube Playlist Feed</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f4;
+    }
+    #canvas {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    #heading {
+      text-align: center;
+    }
+    #heading img {
+      vertical-align: middle;
+      width: 24px;
+      height: 24px;
+    }
+    #feed-textarea ul {
+      list-style: none;
+      padding: 0;
+    }
+    #feed-textarea li {
+      margin: 10px 0;
+    }
+    #feed-textarea a {
+      text-decoration: none;
+      color: #333;
+    }
+    #feed-textarea a:hover {
+      text-decoration: underline;
+    }
+    p {
+      text-align: center;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div id="canvas">
+    <div id="heading">   
+      <h3>
+        <img src="https://cdn.glitch.com/e870d86c-c9e4-4a37-b17d-d6218caf18e2%2Frss.png?v=1594606345375" alt="Feed Icon">
+        YouTube Playlist Feed <span id="selectionTitle">My Playlist</span>
+      </h3>
+      <h4 id="date"></h4>
+    </div>
+
+    <div id="feed-textarea">
+      <ul></ul>
+    </div>
+    <p><a title="Eric K" href="https://www.erickouassi.com/" target="_blank">Eric K</a></p>
+  </div>
+
+  <script>
+    const playlistId = 'PLcsn6wEAzkeXeQIhLeni3cFYKSUXYVH2W';  // PLcsn6wEAzkeV1Yre4bvep45_b0PatcfY- // PLcsn6wEAzkeXeQIhLeni3cFYKSUXYVH2W
+    const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=https://www.youtube.com/feeds/videos.xml?playlist_id=${playlistId}`;
+    const feedList = document.querySelector('#feed-textarea > ul');
+
+    // Set formatted date
+    const date = new Date();
+    document.querySelector('#date').textContent = date.toLocaleString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    fetch(apiUrl)
+      .then(res => res.json())
+      .then(data => {
+        if (!data.items || data.items.length === 0) {
+          throw new Error('No items found in feed.');
+        }
+        feedList.innerHTML = '';
+        data.items.forEach(item => {
+          const li = document.createElement('li');
+          li.innerHTML = `<h4><a target="_blank" href="${item.link}">${item.title}</a></h4>`;
+          feedList.appendChild(li);
+        });
+      })
+      .catch(error => {
+        console.error('Error loading YouTube feed:', error);
+        feedList.innerHTML = '<li>Failed to load YouTube playlist feed. Please try again later.</li>';
+      });
+  </script>
+</body>
+</html>
+
